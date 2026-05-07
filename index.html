@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>daily checking · reset diario</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f4f7fb;
+      font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+      padding: 1.5rem;
+      line-height: 1.4;
+      color: #1a2c3e;
+    }
+
+    /* contenedor principal ligero */
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 28px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.02), 0 2px 6px rgba(0,0,0,0.05);
+      padding: 1.5rem 1.2rem 2rem 1.2rem;
+      transition: all 0.2s ease;
+    }
+
+    /* header minimal */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 1.8rem;
+      border-bottom: 1px solid #e6edf2;
+      padding-bottom: 0.75rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+      color: #1e4663;
+    }
+
+    .reset-area {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .reset-btn {
+      background: none;
+      border: 1px solid #cfdfe9;
+      font-size: 0.75rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 40px;
+      font-weight: 450;
+      color: #2c6478;
+      cursor: pointer;
+      transition: 0.2s;
+      background: #ffffffd9;
+    }
+
+    .reset-btn:hover {
+      background: #eef3fc;
+      border-color: #9bb7cb;
+    }
+
+    .date-badge {
+      font-size: 0.75rem;
+      background: #eef2f5;
+      padding: 0.2rem 0.75rem;
+      border-radius: 30px;
+      color: #2c5a6e;
+      font-weight: 450;
+    }
+
+    /* secciones: cada bloque de tareas */
+    .task-section {
+      margin-bottom: 1.8rem;
+    }
+
+    .section-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 600;
+      color: #66809b;
+      margin-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title span {
+      background: #eef2f6;
+      padding: 0 0.4rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+    }
+
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    /* cada tarea estilo checklist sútil */
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: #ffffff;
+      padding: 0.4rem 0.4rem 0.4rem 0;
+      border-radius: 14px;
+      transition: background 0.1s;
+    }
+
+    .task-check {
+      width: 22px;
+      height: 22px;
+      accent-color: #2e7d64;
+      cursor: pointer;
+      margin: 0;
+      flex-shrink: 0;
+    }
+
+    .task-label {
+      font-size: 0.95rem;
+      font-weight: 450;
+      color: #1e2f3c;
+      flex: 1;
+      cursor: pointer;
+      letter-spacing: -0.2px;
+      transition: color 0.1s;
+    }
+
+    /* tarea completada: efecto tachado suave */
+    .completed .task-label {
+      text-decoration: line-through;
+      color: #96abb9;
+    }
+
+    /* grupo de avances con estilo ligero diferente */
+    .advances-group {
+      background: #fafdfe;
+      border-radius: 20px;
+      padding: 0.2rem 0 0.2rem 0;
+    }
+
+    hr {
+      margin: 1rem 0 0.8rem;
+      border: none;
+      border-top: 1px solid #e2ebf0;
+    }
+
+    .footer-note {
+      margin-top: 1.8rem;
+      text-align: center;
+      font-size: 0.7rem;
+      color: #8aa0ae;
+      border-top: 1px solid #ecf3f8;
+      padding-top: 1rem;
+    }
+
+    button {
+      background: none;
+      font-family: inherit;
+    }
+
+    /* responsive: escala cómoda */
+    @media (max-width: 480px) {
+      body {
+        padding: 1rem;
+      }
+      .container {
+        padding: 1.2rem;
+      }
+      .task-label {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>📋 Cheking Diario</h1>
+    <div class="reset-area">
+      <button class="reset-btn" id="resetDayBtn" aria-label="reset diario">⟳ reset hoy</button>
+      <div class="date-badge" id="dateDisplay"></div>
+    </div>
+  </div>
+
+  <!-- ABRIR sección -->
+  <div class="task-section">
+    <div class="section-title">
+      🔓 ABRIR <span>prioridad</span>
+    </div>
+    <div class="task-list" id="abrirList">
+      <!-- inyectado dinámico pero construido con js para orden estable -->
+    </div>
+  </div>
+
+  <!-- COMPROBAR sección -->
+  <div class="task-section">
+    <div class="section-title">
+      🔍 COMPROBAR
+    </div>
+    <div class="task-list" id="comprobarList"></div>
+  </div>
+
+  <!-- VER AVANCES sección -->
+  <div class="task-section">
+    <div class="section-title">
+      📊 VER AVANCES
+    </div>
+    <div class="task-list advances-group" id="avancesList"></div>
+  </div>
+
+  <div class="footer-note">
+    ✅ checklist diario · se reinicia automáticamente cada día
+  </div>
+</div>
+
+<script>
+  // --------------------------------------------------------------
+  // Definición de tareas en el orden solicitado
+  // --------------------------------------------------------------
+  const TASKS_CONFIG = [
+    // SECCIÓN: ABRIR (primer grupo)
+    { id: "abrir_intranet",      label: "intranet: Tutorías y Cursos",        section: "abrir", order: 1 },
+    { id: "abrir_plataforma",    label: "plataforma: Cursos e informes",      section: "abrir", order: 2 },
+    { id: "abrir_whatsapp",      label: "whatsapp:",                          section: "abrir", order: 3 },
+    // SECCIÓN: COMPROBAR
+    { id: "comprobar_mensajes_whatsapp",  label: "Mensajes whatsapp",         section: "comprobar", order: 4 },
+    { id: "comprobar_foro_presentacion",  label: "Foro presentación",         section: "comprobar", order: 5 },
+    { id: "comprobar_tablon_anuncios",    label: "Tablón anuncios",           section: "comprobar", order: 6 },
+    { id: "comprobar_foro_participacion", label: "Foro participación",        section: "comprobar", order: 7 },
+    { id: "comprobar_mensajes_directos",  label: "Mensajes directos",         section: "comprobar", order: 8 },
+    // SECCIÓN: VER AVANCES
+    { id: "avances_calendario",   label: "Calendario: % del curso y unidades",  section: "avances", order: 9 },
+    { id: "avances_informe_grupo",label: "Informe Grupo: Tiempo conexión",      section: "avances", order: 10 },
+    { id: "avances_finalizacion", label: "Finalización del curso: Avances y última conexión", section: "avances", order: 11 }
+  ];
+
+  // clave para localStorage: guardar estado por día (formato YYYY-MM-DD)
+  const STORAGE_KEY_BASE = "daily_checking_v1";
+
+  // obtener fecha actual en string local YYYY-MM-DD (basado en zona local)
+  function getTodayKey() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // estado completo: { dateKey: string, checks: { [taskId]: boolean } }
+  let currentState = {
+    dateKey: getTodayKey(),
+    checks: {}
+  };
+
+  // guardar estado en localStorage (solo para el día actual)
+  function persistState() {
+    const storageObject = {
+      dateKey: currentState.dateKey,
+      checks: currentState.checks
+    };
+    localStorage.setItem(STORAGE_KEY_BASE, JSON.stringify(storageObject));
+  }
+
+  // cargar estado desde localStorage, validando que sea del día actual.
+  // si no hay datos, o la fecha guardada no coincide con hoy, resetea todas las tareas (fresco).
+  function loadState() {
+    const storedRaw = localStorage.getItem(STORAGE_KEY_BASE);
+    const todayKey = getTodayKey();
+    
+    if (!storedRaw) {
+      // estado inicial: todos false
+      resetAllChecksToFalse();
+      currentState.dateKey = todayKey;
+      persistState();
+      return;
+    }
+    
+    try {
+      const parsed = JSON.parse(storedRaw);
+      if (parsed.dateKey === todayKey && parsed.checks && typeof parsed.checks === 'object') {
+        // mismo día: restaurar checks existentes, pero asegurar que todas las tareas configuradas existan
+        // (por si se agregan nuevas, pero aquí mantenemos las definidas)
+        const restoredChecks = { ...parsed.checks };
+        // para cada tarea definida, si no existe en restoredChecks, se inicializa como false
+        TASKS_CONFIG.forEach(task => {
+          if (typeof restoredChecks[task.id] !== 'boolean') {
+            restoredChecks[task.id] = false;
+          }
+        });
+        currentState.checks = restoredChecks;
+        currentState.dateKey = todayKey;
+      } else {
+        // día diferente o estructura inválida -> reset completo diario
+        resetAllChecksToFalse();
+        currentState.dateKey = todayKey;
+      }
+    } catch(e) {
+      resetAllChecksToFalse();
+      currentState.dateKey = todayKey;
+    }
+    
+    // limpieza extra: eliminar IDs obsoletos que ya no estén en la config actual
+    const validIds = new Set(TASKS_CONFIG.map(t => t.id));
+    Object.keys(currentState.checks).forEach(id => {
+      if (!validIds.has(id)) {
+        delete currentState.checks[id];
+      }
+    });
+    
+    persistState();
+  }
+  
+  // poner todos los checks en false según configuración actual
+  function resetAllChecksToFalse() {
+    const newChecks = {};
+    TASKS_CONFIG.forEach(task => {
+      newChecks[task.id] = false;
+    });
+    currentState.checks = newChecks;
+  }
+  
+  // reset explícito manual (borra el estado del día actual y lo pone a cero)
+  function manualReset() {
+    resetAllChecksToFalse();
+    currentState.dateKey = getTodayKey();
+    persistState();
+    renderAllTasks();     // refrescar UI
+  }
+  
+  // alternar check de una tarea
+  function toggleTask(taskId, isChecked) {
+    if (currentState.checks.hasOwnProperty(taskId)) {
+      currentState.checks[taskId] = isChecked;
+      persistState();
+      // actualizar solo la UI de esa tarea para mantener fluidez sin rerender completo? 
+      // pero prefiero un rerender suave de los tres contenedores (simple y seguro)
+      renderAllTasks();
+    }
+  }
+  
+  // ----- renderizado dinamico pero ordenado y mínimo -----
+  // referencias a los contenedores
+  const abrirContainer = document.getElementById('abrirList');
+  const comprobarContainer = document.getElementById('comprobarList');
+  const avancesContainer = document.getElementById('avancesList');
+  
+  // limpiar y construir cada grupo
+  function renderAllTasks() {
+    // filtrar tareas por sección
+    const abrirTasks = TASKS_CONFIG.filter(t => t.section === 'abrir').sort((a,b) => a.order - b.order);
+    const comprobarTasks = TASKS_CONFIG.filter(t => t.section === 'comprobar').sort((a,b) => a.order - b.order);
+    const avancesTasks = TASKS_CONFIG.filter(t => t.section === 'avances').sort((a,b) => a.order - b.order);
+    
+    renderTaskList(abrirContainer, abrirTasks);
+    renderTaskList(comprobarContainer, comprobarTasks);
+    renderTaskList(avancesContainer, avancesTasks);
+  }
+  
+  // construir lista de tareas con clase dinámica "completed" si está chequeado
+  function renderTaskList(container, tasksArray) {
+    if (!container) return;
+    container.innerHTML = '';
+    
+    tasksArray.forEach(task => {
+      const isChecked = currentState.checks[task.id] === true;
+      // div item
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'task-item';
+      if (isChecked) {
+        itemDiv.classList.add('completed');
+      }
+      
+      // checkbox
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'task-check';
+      checkbox.checked = isChecked;
+      // evento cambio: actualizar estado
+      checkbox.addEventListener('change', (e) => {
+        // importante: evitar propagación, actualizar el modelo
+        toggleTask(task.id, e.target.checked);
+      });
+      
+      // label
+      const labelSpan = document.createElement('span');
+      labelSpan.className = 'task-label';
+      labelSpan.textContent = task.label;
+      // hacer click en label también marca checkbox (experiencia decente)
+      labelSpan.addEventListener('click', (e) => {
+        e.stopPropagation();
+        checkbox.checked = !checkbox.checked;
+        // disparar evento change manualmente
+        const changeEvent = new Event('change', { bubbles: true });
+        checkbox.dispatchEvent(changeEvent);
+      });
+      
+      itemDiv.appendChild(checkbox);
+      itemDiv.appendChild(labelSpan);
+      
+      // opcional: agregar data-id para debug
+      itemDiv.dataset.taskId = task.id;
+      container.appendChild(itemDiv);
+    });
+  }
+  
+  // mostrar fecha actual en el badge
+  function updateDateBadge() {
+    const dateElem = document.getElementById('dateDisplay');
+    if (!dateElem) return;
+    const today = new Date();
+    const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+    const formatted = today.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).replace('.','');
+    const weekday = today.toLocaleDateString('es-ES', { weekday: 'short' }).replace('.','');
+    dateElem.textContent = `${weekday} ${formatted}`;
+  }
+  
+  // comprobar si cambió de día mientras la página está abierta (cruce de medianoche)
+  // pero como es daily checking, al volver a interactuar puede desincronizarse.
+  // para robustez: revisar en cada interacción o con setInterval suave, pero en check minimalista
+  // implementamos función checkDateAndResetIfNeeded: si la fecha guardada en memoria es distinta a hoy, reseteamos
+  function checkDateAndResetIfNeeded() {
+    const todayKey = getTodayKey();
+    if (currentState.dateKey !== todayKey) {
+      // nuevo día -> reset completo
+      resetAllChecksToFalse();
+      currentState.dateKey = todayKey;
+      persistState();
+      renderAllTasks();
+      updateDateBadge(); // refrescar badge visual
+    }
+  }
+  
+  // evento del botón reset manual
+  function bindResetButton() {
+    const resetBtn = document.getElementById('resetDayBtn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        // reset diario manual (pone todo en false, mismo día)
+        manualReset();
+        // actualizar badge de fecha (solo por si acaso)
+        updateDateBadge();
+      });
+    }
+  }
+  
+  // inicialización completa
+  function init() {
+    loadState();            // carga localStorage, valida fecha y resetea si es nuevo día
+    renderAllTasks();
+    updateDateBadge();
+    bindResetButton();
+    
+    // Opcional: detectar cambio de día mientras la página está activa con un timer cada 60 segundos
+    // pero no es necesario saturar; sin embargo, es buena práctica para mantener consistencia.
+    // con intervalo cada 30s revisamos si la fecha cambió (ej: ventana abierta después de medianoche)
+    setInterval(() => {
+      const previousDate = currentState.dateKey;
+      const todayKey = getTodayKey();
+      if (previousDate !== todayKey) {
+        // cambio de día detectado, re-cargar estado limpio
+        loadState();       // esto hará reset basado en nueva fecha
+        renderAllTasks();
+        updateDateBadge();
+      }
+    }, 30000); // cada 30 segundos, liviano
+  }
+  
+  // Ejecutar cuando el DOM esté listo
+  document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
